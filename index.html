@@ -3,381 +3,592 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy Birthday, Salem!</title>
+    <title>Salem's Birthday Quest</title>
+    <script src="https://unpkg.com/tone@14.9.15/build/Tone.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <!-- Tone.js library for audio -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
-        /* General styling for a retro, pixelated feel */
+        :root {
+            --parchment-color: #f5f5dc;
+            --border-color: #5d4037;
+            --text-color: #3e2723;
+            --button-bg: #8d6e63;
+            --button-hover: #bcaaa4;
+        }
+
         body {
-            font-family: 'Press Start 2P', cursive;
-            background-color: #f7d2e7;
-            color: #333;
+            font-family: 'MedievalSharp', serif;
+            background-color: #2c3e50;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
             text-align: center;
+            overflow: auto;
         }
+
         .game-container {
             width: 100%;
-            max-width: 600px;
-            background-color: #fff;
-            border: 8px solid #333;
-            box-shadow: 12px 12px 0px #e0a7c4;
-            padding: 20px;
-            border-radius: 10px;
+            max-width: 800px;
+            background-color: var(--parchment-color);
+            border: 10px solid var(--border-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            padding: 30px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: var(--border-color);
+            text-shadow: 2px 2px 0 #fff;
+            margin-bottom: 20px;
+        }
+
+        #avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid var(--border-color);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            object-fit: cover;
+        }
+
+        #game-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: justify;
+            text-indent: 20px;
+        }
+
+        #choices {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
-        .character-art {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            min-height: 150px;
+
+        .choice-button {
+            background-color: var(--button-bg);
+            border: 3px solid var(--border-color);
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.1em;
+            font-family: 'MedievalSharp', serif;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 5px 0 var(--border-color);
+            transition: all 0.1s ease-in-out;
+            text-align: center;
         }
-        .character-art svg {
+
+        .choice-button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 var(--border-color);
+        }
+
+        .choice-button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 var(--border-color);
+        }
+
+        #inventory {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.9em;
+            width: 150px;
+            text-align: left;
+        }
+
+        #inventory ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #inventory li {
+            margin-bottom: 5px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        .ending-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            max-height: 150px;
-        }
-        .text-box {
-            font-size: 14px;
-            line-height: 1.5;
-            min-height: 150px;
-            background-color: #e0f2f1;
-            border: 4px solid #333;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: left;
-            white-space: pre-wrap; /* Preserve formatting for dialogue */
-        }
-        .options-container {
+            background-color: rgba(0, 0, 0, 0.8);
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        .game-button {
-            background-color: #5d5d5d;
-            color: white;
-            border: 4px solid #333;
-            padding: 15px 20px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            box-shadow: 4px 4px 0px #333;
-            text-align: left;
-            border-radius: 5px;
-        }
-        .game-button:hover {
-            background-color: #7a7a7a;
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px #333;
-        }
-        .game-button:active {
-            transform: translate(4px, 4px);
-            box-shadow: 0px 0px 0px #333;
-        }
-        
-        /* SVG Pixel Art Styles */
-        .pixel { fill: #333; }
-        .pixel-light-skin { fill: #fdd8b1; }
-        .pixel-dark-skin { fill: #c79188; }
-        .pixel-very-light-skin { fill: #ffe0b2; }
-        .pixel-dark-hair { fill: #2c1a1a; }
-        .pixel-shirt-beamlak { fill: #63d1f4; }
-        .pixel-shirt-salem { fill: #f381a8; }
-        .pixel-shirt-kidus { fill: #9c63f4; }
-        .pixel-bg-aastu { fill: #e0f7fa; }
-        .pixel-bg-icl { fill: #e8f5e9; }
-        .pixel-bg-bowling { fill: #ffecb3; }
-        .pixel-bg-home { fill: #c6e2ff; }
-        .pixel-cake { fill: #ff70a6; }
-        .pixel-candle { fill: #fff; }
-        .pixel-flame { fill: #ffeb3b; }
-        
-        .start-screen {
-            font-size: 18px;
-            white-space: pre-wrap;
-            line-height: 1.8;
+
+        .ending-content {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 20px;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            animation: fadeIn 2s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .ending-content svg {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
+
     <div class="game-container">
-        <!-- SVG Pixel Art Container -->
-        <div class="character-art" id="character-art">
-            <!-- SVG will be dynamically inserted here -->
+        <h1>A Quest for the Ages</h1>
+        <img id="avatar" src="https://placehold.co/150x150/f0f0f0/333?text=Salem" alt="Character Avatar">
+        <div id="game-text"></div>
+        <div id="choices"></div>
+        <div id="inventory">
+            <h3>Inventory:</h3>
+            <ul id="inventory-list"></ul>
         </div>
-        <!-- Main game text area -->
-        <div id="text-box" class="text-box"></div>
-        <!-- Choice buttons -->
-        <div id="options-container" class="options-container"></div>
+    </div>
+    
+    <div id="ending-modal" class="ending-modal hidden" style="display: none;">
+        <div class="ending-content">
+            <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+                <!-- Plate -->
+                <ellipse cx="250" cy="450" rx="200" ry="40" fill="#f0f0f0" stroke="#a0a0a0" stroke-width="5"/>
+                <!-- Cake Base -->
+                <rect x="100" y="200" width="300" height="250" rx="20" fill="#ffb6c1" stroke="#a0a0a0" stroke-width="5"/>
+                <!-- Icing -->
+                <path d="M 100 200 C 150 180, 200 220, 250 200 C 300 180, 350 220, 400 200 L 400 200 L 400 250 L 100 250 Z" fill="#fff" stroke="#a0a0a0" stroke-width="5"/>
+                <!-- Candles -->
+                <rect x="150" y="100" width="10" height="80" fill="#a0a0a0"/>
+                <rect x="245" y="110" width="10" height="80" fill="#a0a0a0"/>
+                <rect x="340" y="100" width="10" height="80" fill="#a0a0a0"/>
+                <!-- Flames -->
+                <path d="M 155 100 C 155 90, 165 90, 165 100 Z" fill="#ffcc00"/>
+                <path d="M 250 110 C 250 100, 260 100, 260 110 Z" fill="#ffcc00"/>
+                <path d="M 345 100 C 345 90, 355 90, 355 100 Z" fill="#ffcc00"/>
+                <!-- Decorations -->
+                <circle cx="155" cy="200" r="15" fill="#f44336"/>
+                <circle cx="250" cy="200" r="15" fill="#2196f3"/>
+                <circle cx="345" cy="200" r="15" fill="#4caf50"/>
+            </svg>
+            <h2>Happy Birthday, Salem!</h2>
+            <p>We've been waiting for you, you magnificent creature!</p>
+            <p>It's your **69th** birthday!</p>
+            <p>Beamlak, Kidus, Gelgelo, Amen, and Fikadu are all here to celebrate!</p>
+            <button class="choice-button" onclick="window.location.reload();">Play Again</button>
+        </div>
     </div>
 
     <script>
-        // --- Audio Setup with Tone.js ---
-
-        // A synth for the background music
-        const musicSynth = new Tone.PolySynth(Tone.Synth, {
-            oscillator: { type: 'square' },
-            envelope: {
-                attack: 0.05,
-                decay: 0.1,
-                sustain: 0.2,
-                release: 0.5,
+        // Game state
+        const gameState = {
+            currentScene: 'audio_init',
+            inventory: [],
+            secrets: {
+                bowlingAnswered: false,
+                kidusAnswered: false,
+                gelgeloAnswered: false,
+                fikaduAnswered: false,
             }
-        }).toDestination();
+        };
 
-        // A simple melody for the birthday music
-        const birthdayMelody = [
-            { note: 'C4', time: 0 },
-            { note: 'C4', time: '4n' },
-            { note: 'D4', time: '2n' },
-            { note: 'C4', time: '2n + 4n' },
-            { note: 'F4', time: '1n' },
-            { note: 'E4', time: '1n + 4n' },
-            { note: 'C4', time: '2n + 4n' },
-            { note: 'C4', time: '2n + 4n + 4n' },
-            { note: 'D4', time: '1n + 2n' },
-            { note: 'C4', time: '1n + 2n + 4n' },
-            { note: 'G4', time: '2n' },
-            { note: 'F4', time: '2n + 4n' }
-        ];
+        // DOM elements
+        const gameTextEl = document.getElementById('game-text');
+        const choicesEl = document.getElementById('choices');
+        const avatarEl = document.getElementById('avatar');
+        const inventoryListEl = document.getElementById('inventory-list');
+        const endingModalEl = document.getElementById('ending-modal');
 
-        // The sequence to play the melody on repeat
-        let musicSequence = null;
+        // Character avatars (use your own image URLs here)
+        const avatars = {
+            salem: 'salem.png',
+            beamlak: 'beamlak.png',
+            kidus: 'kidus.png',
+            gelgelo: 'gelgelo.png',
+            amen: 'amen.png',
+            fikadu: 'fikadu.png',
+            unknown: 'https://placehold.co/150x150/f0f0f0/333?text=?'
+        };
 
-        // A synth for the click sound effect
-        const clickSynth = new Tone.Synth({
-            oscillator: { type: 'sine' },
-            envelope: {
-                attack: 0.01,
-                decay: 0.1,
-                sustain: 0,
-                release: 0.1
+        // Define game scenes and story
+        const scenes = {
+            audio_init: {
+                text: "To begin your epic quest, you must first enable the sounds of the journey. Click the button below to start.",
+                avatar: 'salem',
+                choices: [
+                    { text: "Start Quest (Enable Sound)", action: 'startAudioAndGame' }
+                ]
+            },
+            start: {
+                text: "The sun's golden rays pierce the window of your humble hut. A strange, gilded invitation lies on your bedside table. It reads: 'To the one born under the sign of the Scorpion, a grand treasure awaits. But first, you must prove your worth to those who hold the keys.'",
+                avatar: 'salem',
+                choices: [
+                    { text: "Examine the invitation.", nextScene: 'read_note' }
+                ]
+            },
+            read_note: {
+                text: "The invitation is adorned with a strange symbol—a bowling pin with a crown on top. It feels oddly familiar. You realize you must seek out your companions to find the treasure. But where to start? The village square awaits.",
+                avatar: 'salem',
+                choices: [
+                    { text: "Go to the village square.", nextScene: 'village_square' }
+                ]
+            },
+            village_square: {
+                text: "You arrive in the bustling square. The air is filled with the scent of roasted meat and the chatter of merchants. You see your brother, Kidus, standing by the fountain, deep in thought. Near the market stalls, you spot your other companions: Gelgelo, Fikadu, Amen, and Beamlak.",
+                avatar: 'salem',
+                choices: [
+                    { text: "Approach your brother, Kidus.", nextScene: 'meet_kidus' },
+                    { text: "Go see Beamlak, your suspiciously weird friend.", nextScene: 'meet_beamlak' },
+                    { text: "Find Gelgelo, the history enthusiast.", nextScene: 'meet_gelgelo' },
+                    { text: "Look for Amen, the quiet one.", nextScene: 'meet_amen' },
+                    { text: "Wait for Fikadu.", nextScene: 'wait_for_fikadu' },
+                    { text: "Head towards the final door.", nextScene: 'final_door', condition: () => gameState.inventory.includes("Holy Key") && gameState.inventory.includes("Bowling Key") && gameState.inventory.includes("Map") && gameState.inventory.includes("Late Key") }
+                ]
+            },
+            meet_kidus: {
+                text: "Your brother, Kidus, looks up as you approach. He's humming a holy tune. 'Ah, little sister,' he says with a fun-loving sneer. 'I've been praying for a sign. A great riddle has been bestowed upon me. 'What is the name of the holy musical scale with seven tones?' Answer this, and the path to the 'Holy Tome' shall be revealed.'",
+                avatar: 'kidus',
+                choices: [
+                    { text: "It's the Pentatonic scale.", nextScene: 'kidus_wrong_answer' },
+                    { text: "It's the Diatonic scale.", nextScene: 'kidus_correct', condition: () => gameState.inventory.includes("Map") },
+                    { text: "I don't know.", nextScene: 'kidus_ask_around' }
+                ]
+            },
+            kidus_wrong_answer: {
+                text: "'Hahaha! No, you fool!' Kidus laughs, a mischievous glint in his eye. 'It's a sin to be so wrong! Go back and learn your scales, or you shall not pass!' he declares dramatically. He shoves a scroll in your hand that says: 'Gelgelo knows all'.",
+                avatar: 'kidus',
+                choices: [
+                    { text: "Return to the village square.", nextScene: 'village_square' }
+                ],
+                onEnter: () => {
+                     if (!gameState.inventory.includes("Kidus's Hint")) {
+                        gameState.inventory.push("Kidus's Hint");
+                    }
+                }
+            },
+            kidus_correct: {
+                text: "'Ah, the Diatonic scale! I see you've found wisdom, little sister,' Kidus says, his bullying smile turning into one of pride. He hands you a small, heavy book. It’s the 'Holy Tome,' and a golden key falls out as you open it. You now have the **Holy Key**.",
+                avatar: 'kidus',
+                choices: [
+                    { text: "Take the Holy Key and return to the square.", nextScene: 'village_square' }
+                ],
+                onEnter: () => {
+                    if (!gameState.inventory.includes("Holy Key")) {
+                        gameState.inventory.push("Holy Key");
+                        gameState.secrets.kidusAnswered = true;
+                    }
+                }
+            },
+            kidus_ask_around: {
+                text: "'You must seek the answer from a scholar,' Kidus says. 'Perhaps someone who babbles on about old things?'",
+                avatar: 'kidus',
+                choices: [
+                    { text: "Return to the village square.", nextScene: 'village_square' }
+                ]
+            },
+            meet_beamlak: {
+                text: "You find Beamlak attempting to juggle three rotten apples. He fails spectacularly. 'Salem!' he exclaims, a wide, strange grin on his face. 'I've just done something incredible! I invented a cure for a fungal blight using a very *pathogenic* microbe, it's totally true! Would a *pathological* liar be able to do that? Anyway, I have a riddle for the next key. It's an ancient riddle: What is the source of all life? It's a small seed, but it holds the whole world within it.'",
+                avatar: 'beamlak',
+                choices: [
+                    { text: "You're a pathological liar, that's what you are.", nextScene: 'beamlak_insulted' },
+                    { text: "The Sun.", nextScene: 'beamlak_sun_wrong' },
+                    { text: "A Magic Seed.", nextScene: 'beamlak_correct', condition: () => gameState.inventory.includes("Magic Seed") }
+                ]
+            },
+            beamlak_insulted: {
+                text: "'Oof, right in the ego! You got me!' he says, wiping a tear from his eye. 'But I'll have you know, 'pathological' and 'pathogenic' are two different things. See, I'm not a total liar! Just a fun one.'",
+                avatar: 'beamlak',
+                choices: [
+                    { text: "Return to the village square.", nextScene: 'village_square' }
+                ]
+            },
+            beamlak_sun_wrong: {
+                text: "'Ah, a good guess!' Beamlak says. 'The sun gives us light and warmth, but it's not the answer to this riddle. I want a small seed, not a giant star. Think about what's physically in the riddle!'",
+                avatar: 'beamlak',
+                choices: [
+                    { text: "Return to the village square.", nextScene: 'village_square' }
+                ]
+            },
+            beamlak_correct: {
+                text: "Beamlak's eyes widen. 'You're right! A magical seed is the source of all life, even if it's a seed that can only be found with a hint from a friend!' He pulls a shiny silver key from his pocket. It’s the **Bowling Key**.",
+                avatar: 'beamlak',
+                choices: [
+                    { text: "Take the Bowling Key and return to the square.", nextScene: 'village_square' }
+                ],
+                onEnter: () => {
+                    if (!gameState.inventory.includes("Bowling Key")) {
+                        gameState.inventory.push("Bowling Key");
+                        gameState.secrets.bowlingAnswered = true;
+                    }
+                }
+            },
+            meet_gelgelo: {
+                text: "Gelgelo is giving an impassioned speech to a group of uninterested pigeons. '...and so, the ancient AASTU University was founded by the great Emperor Firaol the First in the year 1237! Its first scholars were pioneers in the field of Bio-Alchemy!' He looks up, sees you, and says, 'Ah, Salem! Are you here for a history lesson? Answer this: What year was the first AASTU University founded?'",
+                avatar: 'gelgelo',
+                choices: [
+                    { text: "The year 1237.", nextScene: 'gelgelo_correct' },
+                    { text: "The year 1345.", nextScene: 'gelgelo_wrong' },
+                    { text: "I'll ask Kidus for a clue.", nextScene: 'gelgelo_ask_around' }
+                ]
+            },
+            gelgelo_correct: {
+                text: "'YES! The year 1237! A masterpiece of historical knowledge!' Gelgelo claps you on the back and hands you a scroll with an intricate map. 'This map shows the location of the **Hidden Garden**! Go forth, scholar!'",
+                avatar: 'gelgelo',
+                choices: [
+                    { text: "Take the map and return to the square.", nextScene: 'village_square' }
+                ],
+                onEnter: () => {
+                    if (!gameState.inventory.includes("Map")) {
+                        gameState.inventory.push("Map");
+                        gameState.secrets.gelgeloAnswered = true;
+                    }
+                }
+            },
+            gelgelo_wrong: {
+                text: "'Pah! You're hopeless! Go find a tome and read! The past is important!' he scoffs, and goes back to yelling at the pigeons.",
+                avatar: 'gelgelo',
+                choices: [
+                    { text: "Return to the village square.", nextScene: 'village_square' }
+                ]
+            },
+            gelgelo_ask_around: {
+                text: "'He's just going to confuse you with his religious nonsense,' Gelgelo says. 'Just ask Amen, she's surprisingly helpful when she wants to be.'",
+                avatar: 'gelgelo',
+                choices: [
+                    { text: "Return to the village square.", nextScene: 'village_square' }
+                ]
+            },
+            meet_amen: {
+                text: "Amen is sitting quietly on a bench, a small, beautiful flower in her hand. She offers it to you without a word. The flower has a single, perfect petal. As you take it, a tiny, glowing seed falls into your hand. You now have the **Magic Seed**.",
+                avatar: 'amen',
+                choices: [
+                    { text: "Thank her and return to the square.", nextScene: 'village_square' }
+                ],
+                onEnter: () => {
+                    if (!gameState.inventory.includes("Magic Seed")) {
+                        gameState.inventory.push("Magic Seed");
+                    }
+                }
+            },
+            wait_for_fikadu: {
+                text: "You wait. And wait. A grizzled old merchant walks by, sees you waiting, and chuckles. 'That one? He's as late as the spring harvest! He'll show up eventually, probably with a good excuse about an evil sorcerer or something.' As you are about to give up, you realize the spot where Fikadu was supposed to be has a strange, sacred mark. You recall your brother Kidus saying that a 'holy blessing is the key to all secrets.'",
+                avatar: 'fikadu',
+                choices: [
+                    { text: "Try to find the key with your Holy Key.", nextScene: 'fikadu_correct', condition: () => gameState.inventory.includes("Holy Key") },
+                    { text: "Wait some more.", nextScene: 'fikadu_wrong' }
+                ]
+            },
+            fikadu_correct: {
+                text: "You take the Holy Key and press it against the mark on the ground. A bright light flashes, and the ground gives way, revealing a small box. Inside, you find a small, intricate key. The **Late Key**.",
+                avatar: 'fikadu',
+                choices: [
+                    { text: "Take the Late Key and return to the square.", nextScene: 'village_square' }
+                ],
+                onEnter: () => {
+                    if (!gameState.inventory.includes("Late Key")) {
+                        gameState.inventory.push("Late Key");
+                    }
+                }
+            },
+            fikadu_wrong: {
+                text: "You continue to wait. And wait. But nothing happens. It seems Fikadu is truly late this time.",
+                avatar: 'fikadu',
+                choices: [
+                    { text: "Return to the village square.", nextScene: 'village_square' }
+                ]
+            },
+            final_door: {
+                text: "The path leads to a large, ancient door, covered in intricate carvings. There are four keyholes: one shaped like a holy cross, one like a bowling pin, one like a map, and a final, simple one. You have all four keys.",
+                avatar: 'salem',
+                choices: [
+                    { text: "Insert the keys and open the door.", nextScene: 'the_reveal', condition: () => gameState.inventory.includes("Holy Key") && gameState.inventory.includes("Bowling Key") && gameState.inventory.includes("Map") && gameState.inventory.includes("Late Key") },
+                    { text: "Try to kick the door open.", nextScene: 'kick_door_fail' }
+                ]
+            },
+            kick_door_fail: {
+                text: "You wind up and deliver a mighty kick to the door. It doesn't budge. You just look kind of silly. 'What are you doing, you nincompoop?' a disembodied voice chuckles. 'You can't open a door that doesn't have all the keys.'",
+                avatar: 'unknown',
+                choices: [
+                    { text: "I suppose I'd better find the keys, then.", nextScene: 'village_square' }
+                ]
+            },
+            the_reveal: {
+                text: "The door creaks open to a dark room. You walk in cautiously. Suddenly, torches ignite, revealing a beautiful, large cake in the center of the room. Your friends, Beamlak, Kidus, Gelgelo, Amen, and Fikadu, jump out from behind tapestries, yelling 'SURPRISE!'",
+                avatar: 'beamlak',
+                choices: [
+                    { text: "Accept your destiny.", nextScene: 'ending' }
+                ]
+            },
+            ending: {
+                text: "They begin to sing, 'Happy birthday to you...' The music from the room transitions from the old tune to a familiar one. 'Happy birthday, dear Salem... Happy birthday to you!' It's your 69th birthday, after all.",
+                avatar: 'salem',
+                choices: []
             }
-        }).toDestination();
+        };
 
-        // Function to start the background music
-        function startMusic() {
-            if (!musicSequence) {
-                musicSequence = new Tone.Sequence((time, noteInfo) => {
-                    musicSynth.triggerAttackRelease(noteInfo.note, '8n', time);
-                }, birthdayMelody).start(0);
+        // Audio setup with Tone.js
+        let medievalSynth;
+        let medievalLoop;
 
-                Tone.Transport.loop = true;
-                Tone.Transport.loopEnd = '4m';
+        // Function to start the medieval music
+        function startMedievalMusic() {
+            // Stop the previous loop if it exists
+            if (medievalLoop) {
+                medievalLoop.stop();
             }
+
+            medievalSynth = new Tone.Synth({
+                oscillator: { type: "sine" },
+                envelope: {
+                    attack: 0.005, decay: 0.1, sustain: 0.3, release: 1
+                }
+            }).toDestination();
+
+            medievalLoop = new Tone.Loop(time => {
+                medievalSynth.triggerAttackRelease("C4", "8n", time);
+                medievalSynth.triggerAttackRelease("G3", "8n", time + Tone.Time("4n").toSeconds());
+            }, "2n").start(0);
+
             Tone.Transport.start();
         }
 
-        // Function to stop the background music
-        function stopMusic() {
-            if (musicSequence) {
-                Tone.Transport.stop();
+        // Function to play the birthday song
+        function playBirthdaySong() {
+            // Stop the medieval music
+            if (medievalLoop) {
+                medievalLoop.stop();
             }
-        }
+            
+            // Birthday Song notes (Happy Birthday)
+            const notes = ["C4", "C4", "D4", "C4", "F4", "E4", "C4", "C4", "D4", "C4", "G4", "F4", "C4", "C4", "C5", "A4", "F4", "E4", "D4", "A#4", "A#4", "A4", "F4", "G4", "F4"];
+            const durations = ["4n", "8n", "4n", "4n", "4n", "2n", "4n", "8n", "4n", "4n", "4n", "2n", "4n", "8n", "4n", "4n", "4n", "4n", "2n", "4n", "8n", "4n", "4n", "4n", "2n"];
 
-        // Global click listener for the click sound effect
-        document.addEventListener('click', () => {
-            clickSynth.triggerAttackRelease('C5', '8n');
-        });
+            const birthdaySynth = new Tone.Synth().toDestination();
+            let time = Tone.now();
+            notes.forEach((note, index) => {
+                birthdaySynth.triggerAttackRelease(note, durations[index], time);
+                time += Tone.Time(durations[index]).toSeconds();
+            });
 
-        // Game state and data
-        const gameData = {
-            currentScene: 'start_screen',
-            player: { name: 'Salem', skin: 'pixel-very-light-skin', hair: 'pixel-dark-hair', shirt: 'pixel-shirt-salem' },
-            characters: {
-                beamlak: { name: 'Beamlak', skin: 'pixel-light-skin', hair: 'pixel-dark-hair', shirt: 'pixel-shirt-beamlak' },
-                kidus: { name: 'Kidus', skin: 'pixel-dark-skin', hair: 'pixel-dark-hair', shirt: 'pixel-shirt-kidus' }
-            },
-            scenes: {
-                start_screen: {
-                    text: "Happy Birthday, Salem!\nToday you are the star of the show — YOU!\nNavigate your special day full of weird friends, family, and surprises.\nCan you survive Beamlak’s pathogenic antics and Kidus’s holy bullying?\nLet’s find out!\n\nTap to begin…",
-                    art: 'salem_intro',
-                    options: []
-                },
-                scene_1: {
-                    text: "You wake up to the sound of your phone buzzing. Another message from Beamlak.\n\nBeamlak: \"Ready for your birthday? Time to endure the pathogenic nonsense. 😎\"\n\nYou smile. Your best friend is weird but you love to hate him.",
-                    art: 'aastu_dorm',
-                    options: [
-                        { text: "Reply: \"Bring it on, Beamlak. I’m ready for anything.\"", nextScene: 'scene_2' },
-                        { text: "Reply: \"Pathogenic? More like pathetic. LOL.\"", nextScene: 'scene_2' },
-                        { text: "Ignore and get up slowly.", nextScene: 'scene_2' }
-                    ]
-                },
-                scene_2: {
-                    text: "You arrive at the ICL medical institution where you and Beamlak intern. Today’s tests: blood counting, molecular diagnostics, microbiology.\n\nBeamlak is already there, messing with a microscope.\n\nBeamlak: “Hey Salem! Remember when I totally destroyed you in bowling? The king of bowling strikes again! Haha!”\n\nYou roll your eyes.",
-                    art: 'icl',
-                    options: [
-                        { text: "\"A winner's grin never lies? Nice try.\"", nextScene: 'scene_3_start' },
-                        { text: "\"Bowling was a fluke! This time I’ll show you who’s boss.\"", nextScene: 'scene_3_start' },
-                        { text: "\"At least I’m not the one who still can’t use Snapchat properly.\"", nextScene: 'scene_3_start' }
-                    ]
-                },
-                scene_3_start: {
-                    text: "Beamlak dares you for a bowling rematch at the nearby alley.\n\nBeamlak: “Get ready to lose again. I'm the bowling king!”\n\nYou take your stance, ready to roll the ball. \n\nTap the button to roll the ball.",
-                    art: 'bowling',
-                    options: [] // No button options for the mini-game
-                },
-                scene_3_win: {
-                    text: "You strike like a champion! Beamlak looks genuinely shocked. ‘No way... You’re cheating!’",
-                    art: 'bowling',
-                    options: [
-                        { text: "Move on to the next scene.", nextScene: 'scene_4' }
-                    ]
-                },
-                scene_3_lose: {
-                    text: "Beamlak wins again. ‘Pathogenic liar!’ he shouts, laughing. You glare playfully.",
-                    art: 'bowling',
-                    options: [
-                        { text: "Move on to the next scene.", nextScene: 'scene_4' }
-                    ]
-                },
-                scene_4: {
-                    text: "Remember when you set Beamlak up with Snapchat? What a disaster.\n\nBeamlak: “I still don’t get all those filters. Alien mode activated.”\n\nYou: “You looked so confused, like a lost organism in a petri dish.”",
-                    art: 'beamlak',
-                    options: [
-                        { text: "“Send him a snap with a funny filter.”", nextScene: 'scene_5' },
-                        { text: "“Tell him to just stick to text messages.”", nextScene: 'scene_5' },
-                        { text: "“Call him a ‘Snapchat noob.’”", nextScene: 'scene_5' }
-                    ]
-                },
-                scene_5: {
-                    text: "Suddenly, Kidus appears, your bro who used to bully you but is now a religious singer.\n\nHe holds a microphone and starts singing a pixelated hymn… slightly off-key.\n\nKidus: “Repent, repent! Even Beamlak’s pathological lies won’t save him!”\n\nYou smirk.",
-                    art: 'kidus',
-                    options: [
-                        { text: "“Challenge Kidus to a sing-off. Winner gets bragging rights.”", nextScene: 'scene_6' },
-                        { text: "“Tell him to keep the holy bullying to a minimum.”", nextScene: 'scene_6' },
-                        { text: "“Ask if he can sing something less scary.”", nextScene: 'scene_6' }
-                    ]
-                },
-                scene_6: {
-                    text: "You arrive home, thinking the day is over. Suddenly, Beamlak appears, holding a pixelated birthday cake with candles lit.\n\nBeamlak: “Surprise, Salem! Happy birthday! No pathogenic lies here, just love (and weirdness).”\n\nConfetti rains down as the cake glows on screen.",
-                    art: 'home_with_cake',
-                    options: [
-                        { text: "“Thank you, Beamlak! You’re weird but I love it.”", nextScene: 'game_end' },
-                        { text: "“Can we eat the cake before you say something else weird?”", nextScene: 'game_end' },
-                        { text: "“Let’s plan the next weird adventure — but no more bullying, okay?”", nextScene: 'game_end' }
-                    ]
-                },
-                game_end: {
-                    text: "Thanks for playing “Salem’s Birthday Quest!”\n\nCreated by Beamlak — your pathogenic best friend.",
-                    art: 'final',
-                    options: [
-                        { text: "Play Again", nextScene: 'start_screen' }
-                    ]
+            // Make sure the audio plays until the end
+            setTimeout(() => {
+                if (Tone.Transport.state !== 'stopped') {
+                    Tone.Transport.stop();
                 }
+            }, time * 1000);
+        }
+
+        // Functions to manage the game
+        function renderScene(sceneId) {
+            const scene = scenes[sceneId];
+            gameState.currentScene = sceneId;
+
+            gameTextEl.textContent = scene.text;
+            avatarEl.src = avatars[scene.avatar] || avatars.unknown;
+            
+            // Clear old choices
+            choicesEl.innerHTML = '';
+
+            // Create new choice buttons
+            scene.choices.forEach(choice => {
+                // Check for conditions
+                if (choice.condition && !choice.condition()) {
+                    return; // Skip choices that don't meet the condition
+                }
+
+                const button = document.createElement('button');
+                button.className = 'choice-button';
+                button.textContent = choice.text;
+                if (choice.action) {
+                    button.onclick = () => window[choice.action]();
+                } else {
+                    button.onclick = () => handleChoice(choice);
+                }
+                choicesEl.appendChild(button);
+            });
+
+            // Update inventory display
+            updateInventory();
+
+            // Handle special scene actions
+            if (scene.onEnter) {
+                scene.onEnter();
             }
-        };
-
-        // SVG Pixel Art definitions for characters and backgrounds
-        const characterSVGs = {
-            salem_intro: `<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"> <rect x="50" y="80" width="50" height="70" class="pixel pixel-shirt-salem"/> <rect x="65" y="70" width="20" height="10" class="pixel pixel-very-light-skin"/> <rect x="60" y="60" width="30" height="10" class="pixel pixel-very-light-skin"/> <rect x="55" y="50" width="40" height="10" class="pixel pixel-very-light-skin"/> <rect x="50" y="40" width="50" height="10" class="pixel pixel-very-light-skin"/> <rect x="55" y="30" width="40" height="10" class="pixel pixel-dark-hair"/> <rect x="45" y="20" width="60" height="10" class="pixel pixel-dark-hair"/> <rect x="40" y="10" width="70" height="10" class="pixel pixel-dark-hair"/> <rect x="60" y="45" width="5" height="5" class="pixel"/> <rect x="85" y="45" width="5" height="5" class="pixel"/> <rect x="65" y="55" width="20" height="5" class="pixel"/> </svg>`,
-            beamlak: `<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"> <rect x="50" y="80" width="50" height="70" class="pixel pixel-shirt-beamlak"/> <rect x="65" y="70" width="20" height="10" class="pixel pixel-light-skin"/> <rect x="60" y="60" width="30" height="10" class="pixel pixel-light-skin"/> <rect x="55" y="50" width="40" height="10" class="pixel pixel-light-skin"/> <rect x="50" y="40" width="50" height="10" class="pixel pixel-light-skin"/> <rect x="55" y="30" width="40" height="10" class="pixel pixel-dark-hair"/> <rect x="45" y="20" width="60" height="10" class="pixel pixel-dark-hair"/> <rect x="40" y="10" width="70" height="10" class="pixel pixel-dark-hair"/> <rect x="60" y="45" width="5" height="5" class="pixel"/> <rect x="85" y="45" width="5" height="5" class="pixel"/> <rect x="65" y="55" width="20" height="5" class="pixel"/> </svg>`,
-            kidus: `<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"> <rect x="50" y="80" width="50" height="70" class="pixel pixel-shirt-kidus"/> <rect x="65" y="70" width="20" height="10" class="pixel pixel-dark-skin"/> <rect x="60" y="60" width="30" height="10" class="pixel pixel-dark-skin"/> <rect x="55" y="50" width="40" height="10" class="pixel pixel-dark-skin"/> <rect x="50" y="40" width="50" height="10" class="pixel pixel-dark-skin"/> <rect x="55" y="30" width="40" height="10" class="pixel pixel-dark-hair"/> <rect x="45" y="20" width="60" height="10" class="pixel pixel-dark-hair"/> <rect x="40" y="10" width="70" height="10" class="pixel pixel-dark-hair"/> <rect x="60" y="45" width="5" height="5" class="pixel"/> <rect x="85" y="45" width="5" height="5" class="pixel"/> <rect x="65" y="55" width="20" height="5" class="pixel"/> </svg>`,
-            aastu_dorm: `<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"> <rect x="0" y="0" width="150" height="150" class="pixel-bg-aastu"/> <rect x="20" y="80" width="110" height="20" fill="#fff"/> <rect x="40" y="90" width="70" height="60" fill="#a0522d"/> <rect x="60" y="95" width="30" height="40" fill="#333"/> <text x="75" y="145" font-family="'Press Start 2P', cursive" font-size="10" text-anchor="middle" fill="#fff">AASTU</text> </svg>`,
-            icl: `<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"> <rect x="0" y="0" width="150" height="150" class="pixel-bg-icl"/> <rect x="30" y="50" width="90" height="80" fill="#b2dfdb"/> <rect x="40" y="60" width="70" height="60" fill="#fff"/> <circle cx="75" cy="90" r="15" fill="#e0e0e0"/> <rect x="100" y="80" width="15" height="40" fill="#bdbdbd"/> <text x="75" y="140" font-family="'Press Start 2P', cursive" font-size="10" text-anchor="middle" fill="#333">ICL</text> </svg>`,
-            bowling: `<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"> <rect x="0" y="0" width="150" height="150" class="pixel-bg-bowling"/> <rect x="40" y="100" width="15" height="50" fill="#fff"/> <rect x="60" y="90" width="15" height="60" fill="#fff"/> <rect x="80" y="100" width="15" height="50" fill="#fff"/> <rect x="20" y="120" width="10" height="10" fill="#333"/> <rect x="120" y="120" width="10" height="10" fill="#333"/> <text x="75" y="80" font-family="'Press Start 2P', cursive" font-size="10" text-anchor="middle" fill="#333">Bowling!</text> </svg>`,
-            kidus_mic: `<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"> <rect x="50" y="80" width="50" height="70" class="pixel pixel-shirt-kidus"/> <rect x="65" y="70" width="20" height="10" class="pixel pixel-dark-skin"/> <rect x="60" y="60" width="30" height="10" class="pixel pixel-dark-skin"/> <rect x="55" y="50" width="40" height="10" class="pixel pixel-dark-skin"/> <rect x="50" y="40" width="50" height="10" class="pixel pixel-dark-skin"/> <rect x="55" y="30" width="40" height="10" class="pixel pixel-dark-hair"/> <rect x="45" y="20" width="60" height="10" class="pixel pixel-dark-hair"/> <rect x="40" y="10" width="70" height="10" class="pixel pixel-dark-hair"/> <rect x="60" y="45" width="5" height="5" class="pixel"/> <rect x="85" y="45" width="5" height="5" class="pixel"/> <rect x="65" y="55" width="20" height="5" class="pixel"/> <rect x="100" y="50" width="10" height="50" fill="#9e9e9e"/> <rect x="100" y="40" width="10" height="10" fill="#333"/> </svg>`,
-            home_with_cake: `<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"> <rect x="0" y="0" width="150" height="150" class="pixel-bg-home"/> <rect x="40" y="80" width="70" height="30" class="pixel-cake"/> <rect x="45" y="70" width="60" height="10" fill="#f48fb1"/> <rect x="50" y="60" width="50" height="10" class="pixel-cake"/> <rect x="55" y="50" width="40" height="10" fill="#f48fb1"/> <rect x="65" y="40" width="5" height="10" class="pixel-candle"/> <rect x="75" y="40" width="5" height="10" class="pixel-candle"/> <rect x="65" y="35" width="5" height="5" class="pixel-flame"/> <rect x="75" y="35" width="5" height="5" class="pixel-flame"/> <text x="75" y="140" font-family="'Press Start 2P', cursive" font-size="10" text-anchor="middle" fill="#333">Happy Bday!</text> </svg>`,
-            final: `<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"> <rect x="0" y="0" width="150" height="150" fill="#ffc107"/> <rect x="30" y="40" width="90" height="10" fill="#f44336"/> <rect x="40" y="50" width="70" height="10" fill="#e91e63"/> <rect x="50" y="60" width="50" height="10" fill="#9c27b0"/> <rect x="60" y="70" width="30" height="10" fill="#3f51b5"/> <rect x="70" y="80" width="10" height="10" fill="#03a9f4"/> <text x="75" y="110" font-family="'Press Start 2P', cursive" font-size="10" text-anchor="middle" fill="#333">Happy Birthday!</text> </svg>`
-        };
-
-        // Function to display a scene
-        function showScene(sceneId) {
-            const scene = gameData.scenes[sceneId];
-            const artContainer = document.getElementById('character-art');
-            const textBox = document.getElementById('text-box');
-            const optionsContainer = document.getElementById('options-container');
-
-            // Clear previous content
-            artContainer.innerHTML = '';
-            optionsContainer.innerHTML = '';
-
-            // Update character art
-            if (scene.art) {
-                artContainer.innerHTML = characterSVGs[scene.art];
+            
+            // Check for the final scene to trigger the ending
+            if (sceneId === 'ending') {
+                endingModalEl.style.display = 'flex';
+                playBirthdaySong();
             } else {
-                artContainer.innerHTML = ''; // Hide art if none specified
+                endingModalEl.style.display = 'none';
             }
+        }
+        
+        // This function will be called by the "Start Quest" button
+        async function startAudioAndGame() {
+            try {
+                // Start the audio context, which requires a user gesture
+                await Tone.start();
+                // Then, start the music and render the first game scene
+                startMedievalMusic();
+                renderScene('start');
+            } catch (e) {
+                console.error("Audio failed to start:", e);
+                // Fallback: render the game without audio
+                renderScene('start');
+            }
+        }
 
-            // Update text
-            textBox.innerText = scene.text;
+        function handleChoice(choice) {
+            renderScene(choice.nextScene);
+        }
 
-            // Create buttons for options
-            if (scene.options.length > 0) {
-                optionsContainer.style.display = 'flex';
-                scene.options.forEach(option => {
-                    const button = document.createElement('button');
-                    button.classList.add('game-button');
-                    button.innerText = option.text;
-                    button.onclick = () => makeChoice(option.nextScene);
-                    optionsContainer.appendChild(button);
+        function updateInventory() {
+            inventoryListEl.innerHTML = '';
+            if (gameState.inventory.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = "Empty";
+                inventoryListEl.appendChild(li);
+            } else {
+                gameState.inventory.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    inventoryListEl.appendChild(li);
                 });
-            } else {
-                 optionsContainer.style.display = 'none';
-            }
-
-             if (sceneId === 'start_screen') {
-                const startButton = document.createElement('button');
-                startButton.classList.add('game-button');
-                startButton.innerText = "Tap to Begin";
-                startButton.style.textAlign = 'center';
-                startButton.onclick = async () => {
-                    await Tone.start();
-                    startMusic();
-                    makeChoice('scene_1');
-                };
-                optionsContainer.appendChild(startButton);
-                optionsContainer.style.display = 'flex';
-            } else if (sceneId === 'scene_3_start') {
-                const bowlButton = document.createElement('button');
-                bowlButton.classList.add('game-button');
-                bowlButton.innerText = "BOWL!";
-                bowlButton.style.textAlign = 'center';
-                bowlButton.onclick = () => {
-                    if (Math.random() < 0.5) {
-                        makeChoice('scene_3_win');
-                    } else {
-                        makeChoice('scene_3_lose');
-                    }
-                };
-                optionsContainer.appendChild(bowlButton);
-                optionsContainer.style.display = 'flex';
-            } else if (sceneId === 'game_end') {
-                // Stop music when the game ends
-                stopMusic();
-                const playAgainButton = document.createElement('button');
-                playAgainButton.classList.add('game-button');
-                playAgainButton.innerText = "Play Again";
-                playAgainButton.style.textAlign = 'center';
-                playAgainButton.onclick = () => makeChoice('start_screen');
-                optionsContainer.appendChild(playAgainButton);
-                optionsContainer.style.display = 'flex';
             }
         }
 
-        // Function to handle choices
-        function makeChoice(nextSceneId) {
-            gameData.currentScene = nextSceneId;
-            showScene(gameData.currentScene);
-        }
+        // Start the game when the window loads
+        window.onload = function() {
+            renderScene(gameState.currentScene);
+        };
 
-        // Initialize the game when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            showScene(gameData.currentScene);
-        });
     </script>
 </body>
 </html>
