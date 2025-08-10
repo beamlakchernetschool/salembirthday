@@ -110,6 +110,7 @@
             font-size: 0.9em;
             width: 150px;
             text-align: left;
+            z-index: 10;
         }
 
         #inventory ul {
@@ -159,6 +160,31 @@
             max-width: 400px;
             height: auto;
             margin-bottom: 20px;
+        }
+
+        /* Mobile-first adjustments for smaller screens */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .game-container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            #game-text {
+                font-size: 1em;
+            }
+            .choice-button {
+                font-size: 1em;
+                padding: 12px 20px;
+            }
+            #inventory {
+                position: static; /* Stack inventory on top for small screens */
+                width: auto;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
@@ -225,14 +251,14 @@
         const inventoryListEl = document.getElementById('inventory-list');
         const endingModalEl = document.getElementById('ending-modal');
 
-        // Character avatars (use your own image URLs here)
+        // Character avatars with full URLs
         const avatars = {
-            salem: 'salem.png',
-            beamlak: 'beamlak.png',
-            kidus: 'kidus.png',
-            gelgelo: 'gelgelo.png',
-            amen: 'amen.png',
-            fikadu: 'fikadu.png',
+            salem: 'https://placehold.co/150x150/f5f5dc/3e2723?text=Salem',
+            beamlak: 'https://placehold.co/150x150/bcaaa4/5d4037?text=Beamlak',
+            kidus: 'https://placehold.co/150x150/8d6e63/ffffff?text=Kidus',
+            gelgelo: 'https://placehold.co/150x150/ffb6c1/5d4037?text=Gelgelo',
+            amen: 'https://placehold.co/150x150/4caf50/ffffff?text=Amen',
+            fikadu: 'https://placehold.co/150x150/2196f3/ffffff?text=Fikadu',
             unknown: 'https://placehold.co/150x150/f0f0f0/333?text=?'
         };
 
