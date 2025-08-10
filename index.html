@@ -199,7 +199,7 @@
 
     <div class="game-container">
         <h1>A Quest for the Ages</h1>
-        <img id="avatar" src="https://placehold.co/150x150/f5f5dc/3e2723?text=Salem" alt="Character Avatar">
+        <img id="avatar" src="salem.png" alt="Character Avatar">
         <div id="game-text"></div>
         <div id="choices"></div>
         
@@ -261,14 +261,15 @@
         const endingModalEl = document.getElementById('ending-modal');
 
         // Character avatars with full URLs
+        // Updated to use local file names
         const avatars = {
-            salem: 'https://placehold.co/150x150/f5f5dc/3e2723?text=Salem',
-            beamlak: 'https://placehold.co/150x150/bcaaa4/5d4037?text=Beamlak',
-            kidus: 'https://placehold.co/150x150/8d6e63/ffffff?text=Kidus',
-            gelgelo: 'https://placehold.co/150x150/ffb6c1/5d4037?text=Gelgelo',
-            amen: 'https://placehold.co/150x150/4caf50/ffffff?text=Amen',
-            fikadu: 'https://placehold.co/150x150/2196f3/ffffff?text=Fikadu',
-            unknown: 'https://placehold.co/150x150/f0f0f0/333?text=?'
+            salem: 'salem.png',
+            beamlak: 'beamlak.png',
+            kidus: 'kidus.png',
+            gelgelo: 'gelgelo.png',
+            amen: 'amen.png',
+            fikadu: 'fikadu.png',
+            unknown: 'unknown.png'
         };
 
         // Define game scenes and story
@@ -462,15 +463,7 @@
                 text: "The path leads to a large, ancient door, covered in intricate carvings. There are four keyholes: one shaped like a holy cross, one like a bowling pin, one like a map, and a final, simple one. You have all four keys.",
                 avatar: 'salem',
                 choices: [
-                    { text: "Insert the keys and open the door.", nextScene: 'the_reveal', condition: () => gameState.inventory.includes("Holy Key") && gameState.inventory.includes("Bowling Key") && gameState.inventory.includes("Map") && gameState.inventory.includes("Late Key") },
-                    { text: "Try to kick the door open.", nextScene: 'kick_door_fail' }
-                ]
-            },
-            kick_door_fail: {
-                text: "You wind up and deliver a mighty kick to the door. It doesn't budge. You just look kind of silly. 'What are you doing, you nincompoop?' a disembodied voice chuckles. 'You can't open a door that doesn't have all the keys.'",
-                avatar: 'unknown',
-                choices: [
-                    { text: "I suppose I'd better find the keys, then.", nextScene: 'village_square' }
+                    { text: "Insert the keys and open the door.", nextScene: 'the_reveal', condition: () => gameState.inventory.includes("Holy Key") && gameState.inventory.includes("Bowling Key") && gameState.inventory.includes("Map") && gameState.inventory.includes("Late Key") }
                 ]
             },
             the_reveal: {
