@@ -618,20 +618,9 @@
                 });
             }
         }
-        
-        // Function to preload all character avatars
-        function preloadAvatars() {
-            for (const key in avatars) {
-                if (avatars.hasOwnProperty(key)) {
-                    const img = new Image();
-                    img.src = avatars[key];
-                }
-            }
-        }
 
         // Start the game when the window loads
         window.onload = function() {
-            preloadAvatars(); // Preload images before the first scene is rendered
             renderScene(gameState.currentScene);
         };
 
