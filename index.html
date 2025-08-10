@@ -15,6 +15,7 @@
             --text-color: #3e2723;
             --button-bg: #8d6e63;
             --button-hover: #bcaaa4;
+            --inventory-bg: #e0d8bf; /* A slightly darker parchment for contrast */
         }
 
         body {
@@ -40,14 +41,16 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
             padding: 30px;
             box-sizing: border-box;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Space between sections */
         }
 
         h1 {
             font-size: 2.5em;
             color: var(--border-color);
             text-shadow: 2px 2px 0 #fff;
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
 
         #avatar {
@@ -55,15 +58,14 @@
             height: 150px;
             border-radius: 50%;
             border: 5px solid var(--border-color);
-            margin-bottom: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             object-fit: cover;
+            align-self: center; /* Center the avatar */
         }
 
         #game-text {
             font-size: 1.2em;
             line-height: 1.6;
-            margin-bottom: 30px;
             text-align: justify;
             text-indent: 20px;
         }
@@ -100,27 +102,37 @@
         }
 
         #inventory {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: rgba(255, 255, 255, 0.7);
+            background-color: var(--inventory-bg);
             border: 2px solid var(--border-color);
             border-radius: 8px;
-            padding: 10px;
-            font-size: 0.9em;
-            width: 150px;
-            text-align: left;
-            z-index: 10;
+            padding: 15px;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        #inventory h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--border-color);
         }
 
         #inventory ul {
             list-style: none;
             padding: 0;
             margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
         }
 
         #inventory li {
-            margin-bottom: 5px;
+            background-color: var(--button-hover);
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: white;
+            font-size: 0.9em;
         }
         
         .hidden {
@@ -162,7 +174,7 @@
             margin-bottom: 20px;
         }
 
-        /* Mobile-first adjustments for smaller screens */
+        /* Mobile-first adjustments */
         @media (max-width: 600px) {
             body {
                 padding: 10px;
@@ -180,11 +192,6 @@
                 font-size: 1em;
                 padding: 12px 20px;
             }
-            #inventory {
-                position: static; /* Stack inventory on top for small screens */
-                width: auto;
-                margin-bottom: 20px;
-            }
         }
     </style>
 </head>
@@ -192,9 +199,11 @@
 
     <div class="game-container">
         <h1>A Quest for the Ages</h1>
-        <img id="avatar" src="https://placehold.co/150x150/f0f0f0/333?text=Salem" alt="Character Avatar">
+        <img id="avatar" src="https://placehold.co/150x150/f5f5dc/3e2723?text=Salem" alt="Character Avatar">
         <div id="game-text"></div>
         <div id="choices"></div>
+        
+        <!-- Inventory is now part of the main container -->
         <div id="inventory">
             <h3>Inventory:</h3>
             <ul id="inventory-list"></ul>
@@ -609,9 +618,20 @@
                 });
             }
         }
+        
+        // Function to preload all character avatars
+        function preloadAvatars() {
+            for (const key in avatars) {
+                if (avatars.hasOwnProperty(key)) {
+                    const img = new Image();
+                    img.src = avatars[key];
+                }
+            }
+        }
 
         // Start the game when the window loads
         window.onload = function() {
+            preloadAvatars(); // Preload images before the first scene is rendered
             renderScene(gameState.currentScene);
         };
 
