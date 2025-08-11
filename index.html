@@ -235,7 +235,7 @@
             <h2>Happy Birthday, Salem!</h2>
             <p>We've been waiting for you, you magnificent creature!</p>
             <p>It's your **69th** birthday!</p>
-            <p>Beamlak, Kidus, Gelgelo, Amen, and Fikadu are all here to celebrate!</p>
+            <p>Beamlak, Kidus, Gelgelo, Amen, Fikadu, and Dawit are all here to celebrate!</p>
             <button class="choice-button" onclick="window.location.reload();">Play Again</button>
         </div>
     </div>
@@ -269,6 +269,9 @@
             gelgelo: 'gelgelo.png',
             amen: 'amen.png',
             fikadu: 'fikadu.png',
+            // Dawit: quiet handyman / electrician — load the PNG you mentioned (dawig.png)
+            // If you happen to name it dawit.png instead, either filename will work if present.
+            dawit: 'dawig.png',
             unknown: 'unknown.png'
         };
 
@@ -296,7 +299,7 @@
                 ]
             },
             village_square: {
-                text: "You arrive in the bustling square. The air is filled with the scent of roasted meat and the chatter of merchants. You see your brother, Kidus, standing by the fountain, deep in thought. Near the market stalls, you spot your other companions: Gelgelo, Fikadu, Amen, and Beamlak.",
+                text: "You arrive in the bustling square. The air is filled with the scent of roasted meat and the chatter of merchants. You see your brother, Kidus, standing by the fountain, deep in thought. Near the market stalls, you spot your other companions: Gelgelo, Fikadu, Amen, and Beamlak. There's also Dawit, a quiet fellow tinkering with a battered lantern near the smith's cart.",
                 avatar: 'salem',
                 choices: [
                     { text: "Approach your brother, Kidus.", nextScene: 'meet_kidus' },
@@ -304,6 +307,7 @@
                     { text: "Find Gelgelo, the history enthusiast.", nextScene: 'meet_gelgelo' },
                     { text: "Look for Amen, the quiet one.", nextScene: 'meet_amen' },
                     { text: "Wait for Fikadu.", nextScene: 'wait_for_fikadu' },
+                    { text: "Seek out Dawit, the quiet handyman.", nextScene: 'meet_dawit' },
                     { text: "Head towards the final door.", nextScene: 'final_door', condition: () => gameState.inventory.includes("Holy Key") && gameState.inventory.includes("Bowling Key") && gameState.inventory.includes("Map") && gameState.inventory.includes("Late Key") }
                 ]
             },
@@ -459,6 +463,19 @@
                     { text: "Return to the village square.", nextScene: 'village_square' }
                 ]
             },
+            // New Dawit scene: quiet electrician/handyman that fits the medieval tinkerer theme
+            meet_dawit: {
+                text: "Dawit works silently over a battered lantern, one hand steady as he tightens a brass screw. He doesn't speak much, but when he does it's in short, useful sentences. He peers up and says, 'You lookin' for tools? I keep things running. Take this — might help with stubborn locks or odd contraptions.' You gain a small, useful tool: the **Sparks Tool**.",
+                avatar: 'dawit',
+                choices: [
+                    { text: "Take the Sparks Tool and return to the square.", nextScene: 'village_square' }
+                ],
+                onEnter: () => {
+                    if (!gameState.inventory.includes("Sparks Tool")) {
+                        gameState.inventory.push("Sparks Tool");
+                    }
+                }
+            },
             final_door: {
                 text: "The path leads to a large, ancient door, covered in intricate carvings. There are four keyholes: one shaped like a holy cross, one like a bowling pin, one like a map, and a final, simple one. You have all four keys.",
                 avatar: 'salem',
@@ -467,7 +484,7 @@
                 ]
             },
             the_reveal: {
-                text: "The door creaks open to a dark room. You walk in cautiously. Suddenly, torches ignite, revealing a beautiful, large cake in the center of the room. Your friends, Beamlak, Kidus, Gelgelo, Amen, and Fikadu, jump out from behind tapestries, yelling 'SURPRISE!'",
+                text: "The door creaks open to a dark room. You walk in cautiously. Suddenly, torches ignite, revealing a beautiful, large cake in the center of the room. Your friends, Beamlak, Kidus, Gelgelo, Amen, Fikadu, and Dawit, jump out from behind tapestries, yelling 'SURPRISE!'",
                 avatar: 'beamlak',
                 choices: [
                     { text: "Accept your destiny.", nextScene: 'ending' }
